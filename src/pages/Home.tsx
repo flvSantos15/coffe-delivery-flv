@@ -1,11 +1,11 @@
 import { Intro } from "../components/Intro";
+import { ListCoffe } from "../components/ListCoffe";
 
 export function Home() {
   return (
-    <div className="flex px-[10rem] py-[5.75rem] w-[90rem] min-w-full h-[34rem]">
-      {/* intro component */}
+    <div className="flex flex-col w-[90rem]">
       <Intro />
-      {/* coffe list component */}
+      <ListCoffe />
     </div>
   )
 }

@@ -28,7 +28,7 @@ const itensRight = [
 
 export function Intro() {
   return (
-    <div className="flex justify-between w-[100%] h-[100%]">
+    <div className="flex justify-between w-[100%] min-w-full h-[34rem] px-[10rem] py-[5.75rem]">
       <div className='flex flex-col justify-between h-[100%]'>
         <div className="flex flex-col items-start p-0 gap-[1rem] w-[36.75rem] h-[12rem]">
           <h1 className="font-['Baloo_2'] font-extrabold text-[3rem] leading-[3.875rem] text-base-title">
