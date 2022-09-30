@@ -28,8 +28,8 @@ const itensRight = [
 
 export function Intro() {
   return (
-    <div className="flex justify-between w-[100%] min-w-full h-[34rem] px-[10rem] py-[5.75rem]">
-      <div className='flex flex-col justify-between h-[100%]'>
+    <div className="flex justify-between w-[100%] min-w-full h-[34rem] px-[10rem] lg:px-[6rem] py-[5.75rem] ">
+      <div className="flex flex-col justify-between h-[100%]">
         <div className="flex flex-col items-start p-0 gap-[1rem] w-[36.75rem] h-[12rem]">
           <h1 className="font-['Baloo_2'] font-extrabold text-[3rem] leading-[3.875rem] text-base-title">
             Encontre o café perfeito para qualquer hora do dia
@@ -40,9 +40,9 @@ export function Intro() {
         </div>
         <div className="flex justify-between w-[35.438rem] h-[5.25rem]">
           <div className="flex flex-col justify-between">
-            {itensLeft.map((item) => {
+            {itensLeft.map((item, index) => {
               return (
-                <div className="flex items-center p-0 gap-[0.75rem]">
+                <div key={index} className="flex items-center p-0 gap-[0.75rem]">
                   <img src={item.icon} alt="" />
                   <p className="font-['Roboto'] font-normal text-base leading-[1.313rem] text-base-text">
                     {item.description}
