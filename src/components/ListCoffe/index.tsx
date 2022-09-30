@@ -35,7 +35,7 @@ export function ListCoffe() {
           })}
         </div>
       </div>
-
+      {/* lista do componente de café */}
     </div>
   )
 }
