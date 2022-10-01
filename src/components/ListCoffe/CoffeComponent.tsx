@@ -12,19 +12,26 @@ export function CoffeComponent({
   coffeDescription,
   coffePrice
 }: CoffeComponentProps) {
-  const { increaseCartItens, decreaseCartItens } = useCart()
+  const {
+    increaseCartItens,
+    decreaseCartItens,
+    addCoffeToCart,
+    removeCoffeFromCart
+  } = useCart()
 
   const [cartItens, setCartItens] = useState(0)
 
   function handleIncreaseCartItens() {
     increaseCartItens()
     setCartItens(cartItens + 1)
+    addCoffeToCart(coffeTitle)
   }
 
   function handleDecreaseCartItens() {
     if (cartItens > 0) {
       decreaseCartItens()
       setCartItens(cartItens - 1)
+      removeCoffeFromCart(coffeTitle)
     }
   }
 

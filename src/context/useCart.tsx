@@ -4,6 +4,8 @@ interface CartContextData {
   cartItemsAmount: number
   increaseCartItens: () => void
   decreaseCartItens: () => void
+  addCoffeToCart: (item: string) => void
+  removeCoffeFromCart: (item: string) => void
 }
 
 interface CartProviderData {
@@ -14,6 +16,7 @@ export const CartContext = createContext({} as CartContextData)
 
 export function CartProvider({ children }: CartProviderData) {
   const [cartItemsAmount, setCartItensAmount] = useState<number>(0)
+  const [coffesToBuy, setCoffeToBuy] = useState<string[]>([])
 
   function increaseCartItens() {
     setCartItensAmount((state) => {
@@ -31,12 +34,24 @@ export function CartProvider({ children }: CartProviderData) {
     }
   }
 
+  function addCoffeToCart(item: string) {
+    setCoffeToBuy([...coffesToBuy, item])
+  }
+
+  function removeCoffeFromCart(item: string) {
+    const coffes = coffesToBuy.indexOf(item)
+    coffesToBuy.splice(coffes, 1)
+    setCoffeToBuy(coffesToBuy)
+  }
+
   return (
     <CartContext.Provider
       value={{
         cartItemsAmount,
         increaseCartItens,
-        decreaseCartItens
+        decreaseCartItens,
+        addCoffeToCart,
+        removeCoffeFromCart
       }}>
       {children}
     </CartContext.Provider>
