@@ -2,6 +2,7 @@ import { createContext, ReactNode, useContext, useState } from 'react'
 
 interface CartContextData {
   cartItemsAmount: number
+  coffesToBuy: string[]
   increaseCartItens: () => void
   decreaseCartItens: () => void
   addCoffeToCart: (item: string) => void
@@ -16,6 +17,7 @@ export const CartContext = createContext({} as CartContextData)
 
 export function CartProvider({ children }: CartProviderData) {
   const [cartItemsAmount, setCartItensAmount] = useState<number>(0)
+  // const [coffesToBuy, setCoffeToBuy] = useState<CoffeComponentProps[]>([])
   const [coffesToBuy, setCoffeToBuy] = useState<string[]>([])
 
   function increaseCartItens() {
@@ -48,6 +50,7 @@ export function CartProvider({ children }: CartProviderData) {
     <CartContext.Provider
       value={{
         cartItemsAmount,
+        coffesToBuy,
         increaseCartItens,
         decreaseCartItens,
         addCoffeToCart,
