@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import coffes from '../../../coffeList.json'
+import { api } from "../../services/api"
 import { CoffeComponentProps } from "../../types/coffe"
 import { CoffeComponent } from "./CoffeComponent"
 
@@ -22,7 +23,30 @@ const buttonLabel = [
 ]
 
 export function ListCoffe() {
-  const [coffeList, setCoffeList] = useState<CoffeComponentProps[]>(coffes)
+  const [coffeList, setCoffeList] = useState<CoffeComponentProps[]>([])
+
+  useEffect(() => {
+    const data: CoffeComponentProps[] = []
+
+    // mover essa parte pra uma pasta separada em services
+    // com retorno dos dados
+    api.get<CoffeComponentProps[]>('/coffe').then((response) => {
+      const res = response.data
+
+      res.map((coffe) => {
+        data.push({
+          id: Math.random(),
+          coffeTitle: coffe.coffeTitle,
+          coffeDescription: coffe.coffeDescription,
+          coffeImage: coffe.coffeImage,
+          coffeTag: coffe.coffeTag,
+          coffePrice: coffe.coffePrice
+        })
+      })
+      
+      setCoffeList(data)
+    })
+  }, [])
 
   return (
     <div className="flex items-center justify-center">
@@ -45,10 +69,11 @@ export function ListCoffe() {
         </div>
         {/* lista do componente de café */}
         <div className="grid grid-cols-4 gap-4">
-          {coffeList.map((coffe, index) => {
+          {coffeList?.map((coffe) => {
             return (
               <CoffeComponent
-                key={index}
+                key={coffe.id}
+                id={coffe.id}
                 coffeTitle={coffe.coffeTitle}
                 coffeDescription={coffe.coffeDescription}
                 coffeImage={coffe.coffeImage}

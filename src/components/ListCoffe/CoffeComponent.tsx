@@ -6,6 +6,7 @@ import { useCart } from '../../context/useCart'
 import { CoffeComponentProps } from '../../types/coffe'
 
 export function CoffeComponent({
+  id,
   coffeImage,
   coffeTag,
   coffeTitle,
@@ -22,8 +23,11 @@ export function CoffeComponent({
   const [cartItens, setCartItens] = useState(0)
 
   function handleIncreaseCartItens() {
+    // essa fn não sera usada aqui
     increaseCartItens()
+    // devo atualizar o valor do cart itens e mandar junto com o id ao hook
     setCartItens(cartItens + 1)
+    // não vou precisar mandar o nome do coffe pois o id ira ser responsavel por isso
     addCoffeToCart(coffeTitle)
   }
 
@@ -33,6 +37,11 @@ export function CoffeComponent({
       setCartItens(cartItens - 1)
       removeCoffeFromCart(coffeTitle)
     }
+  }
+
+  function handleAddCoffe(id: number) {
+    // aqui devo adicionar o id ao hook com a quantidade escolhida
+    console.log(id)
   }
 
   return (
@@ -73,7 +82,9 @@ export function CoffeComponent({
               +
             </button>
           </div>
-          <img src={iconCartButton} alt="" />
+          <button onClick={() => handleAddCoffe(id)}>
+            <img src={iconCartButton} alt="" />
+          </button>
         </div>
       </div>
     </div>

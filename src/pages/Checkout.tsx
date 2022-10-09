@@ -16,6 +16,7 @@ import { useCart } from '../context/useCart'
 import coffes from '../../coffeList.json'
 import { CoffeComponentProps } from '../types/coffe'
 import { getListCoffesToBuy } from '../utils/getListCoffestoBuy'
+import { api } from '../services/api'
 
 const coffeDeliveryFormScheme = zod.object({
   cep: zod.string(),
@@ -33,7 +34,7 @@ type CoffeDeliveryForm = zod.infer<typeof coffeDeliveryFormScheme>
 export function CheckoutPage() {
   const { coffesToBuy } = useCart()
 
-  const [coffeList, setCoffeList] = useState<CoffeComponentProps[]>(coffes)
+  const [coffeList, setCoffeList] = useState<CoffeComponentProps[]>([])
   const [coffeListToBuy, setCoffeListToBuy] = useState<CoffeComponentProps[]>([])
   const [paymentMethod, setPaymentMethod] = useState('')
 
@@ -88,6 +89,31 @@ export function CheckoutPage() {
     setCoffeListToBuy(coffeListToBuyArray)
 
   }, [coffeList])
+
+  // essa fn já existe em outro lugar, arrumar dps
+  useEffect(() => {
+    const data: CoffeComponentProps[] = []
+
+    // mover essa parte pra uma pasta separada em services
+    // com retorno dos dados
+    api.get<CoffeComponentProps[]>('/coffe').then((response) => {
+      const res = response.data
+
+      res.map((coffe) => {
+        data.push({
+          id: Math.random(),
+          coffeTitle: coffe.coffeTitle,
+          coffeDescription: coffe.coffeDescription,
+          coffeImage: coffe.coffeImage,
+          coffeTag: coffe.coffeTag,
+          coffePrice: coffe.coffePrice
+        })
+      })
+      
+      setCoffeList(data)
+    })
+  }, [])
+
 
   const totalItensPrice = useCallback(() => {
 
