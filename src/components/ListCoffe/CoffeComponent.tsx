@@ -17,32 +17,28 @@ export function CoffeComponent({
     increaseCartItens,
     decreaseCartItens,
     addCoffeToCart,
-    removeCoffeFromCart
+    removeCoffeFromCart,
+    addCoffe
   } = useCart()
 
   const [cartItens, setCartItens] = useState(0)
 
-  function handleIncreaseCartItens() {
-    // essa fn não sera usada aqui
-    increaseCartItens()
-    // devo atualizar o valor do cart itens e mandar junto com o id ao hook
+  const handleIncreaseCartItens = () => {
     setCartItens(cartItens + 1)
-    // não vou precisar mandar o nome do coffe pois o id ira ser responsavel por isso
-    addCoffeToCart(coffeTitle)
   }
 
-  function handleDecreaseCartItens() {
+  const handleDecreaseCartItens = () => {
     if (cartItens > 0) {
-      decreaseCartItens()
       setCartItens(cartItens - 1)
-      removeCoffeFromCart(coffeTitle)
     }
   }
 
-  function handleAddCoffe(id: number) {
+  const handleAddCoffe = (id: number) => {
     // aqui devo adicionar o id ao hook com a quantidade escolhida
-    console.log(id)
+    addCoffe({ coffeId: id, coffeAmount: cartItens })
   }
+
+  const isCartItensEmpty = cartItens === 0
 
   return (
     <div className="flex flex-col items-center w-[16rem] h-[19.375rem] rounded-tl-[0.375rem] rounded-br-[0.375rem] rounded-tr-[2.25rem] rounded-bl-[2.25rem] bg-base-card gap-[0.5rem] px-[1rem]">
@@ -82,7 +78,7 @@ export function CoffeComponent({
               +
             </button>
           </div>
-          <button onClick={() => handleAddCoffe(id)}>
+          <button onClick={() => handleAddCoffe(id)} disabled={isCartItensEmpty}>
             <img src={iconCartButton} alt="" />
           </button>
         </div>

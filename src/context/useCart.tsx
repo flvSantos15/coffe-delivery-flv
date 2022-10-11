@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useState } from 'react'
+import { CoffeComponentProps } from '../types/coffe'
 
 interface CartContextData {
   cartItemsAmount: number
@@ -7,6 +8,12 @@ interface CartContextData {
   decreaseCartItens: () => void
   addCoffeToCart: (item: string) => void
   removeCoffeFromCart: (item: string) => void
+  addCoffe: (item: AddCoffeProps) => void
+}
+
+type AddCoffeProps = {
+  coffeId: number
+  coffeAmount: number
 }
 
 interface CartProviderData {
@@ -19,14 +26,15 @@ export function CartProvider({ children }: CartProviderData) {
   const [cartItemsAmount, setCartItensAmount] = useState<number>(0)
   // const [coffesToBuy, setCoffeToBuy] = useState<CoffeComponentProps[]>([])
   const [coffesToBuy, setCoffeToBuy] = useState<string[]>([])
+  const [cartCoffe, setCartCoffe] = useState<CoffeComponentProps[]>([])
 
-  function increaseCartItens() {
+  const increaseCartItens = () => {
     setCartItensAmount((state) => {
       return state + 1
     })
   }
 
-  function decreaseCartItens() {
+  const decreaseCartItens = () => {
     if (cartItemsAmount > 0) {
       setCartItensAmount((state) => {
         return state - 1
@@ -36,14 +44,31 @@ export function CartProvider({ children }: CartProviderData) {
     }
   }
 
-  function addCoffeToCart(item: string) {
+  const addCoffeToCart = (item: string) => {
     setCoffeToBuy([...coffesToBuy, item])
   }
 
-  function removeCoffeFromCart(item: string) {
+  const removeCoffeFromCart = (item: string) => {
     const coffes = coffesToBuy.indexOf(item)
     coffesToBuy.splice(coffes, 1)
     setCoffeToBuy(coffesToBuy)
+  }
+
+  const addCoffe = ({
+    coffeId,
+    coffeAmount
+  }: AddCoffeProps) => {
+    // copia de tds os itens no carrinho, que ainda n existe
+    const updatedCart = [...cartCoffe]
+    console.log(coffeId, coffeAmount)
+    const productExists = updatedCart.find(coffe => coffe.id === coffeId)
+
+    // currentAmount == coffeAmount
+
+    // se o cafe ja existe no carrinho eu atualizo a qntdd
+    if (productExists) {
+      // add
+    }
   }
 
   return (
@@ -54,7 +79,8 @@ export function CartProvider({ children }: CartProviderData) {
         increaseCartItens,
         decreaseCartItens,
         addCoffeToCart,
-        removeCoffeFromCart
+        removeCoffeFromCart,
+        addCoffe
       }}>
       {children}
     </CartContext.Provider>

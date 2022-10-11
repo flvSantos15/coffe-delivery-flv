@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import coffes from '../../../coffeList.json'
 import { api } from "../../services/api"
+import { getCoffeList } from "../../services/getCoffeList"
 import { CoffeComponentProps } from "../../types/coffe"
 import { CoffeComponent } from "./CoffeComponent"
 
@@ -25,27 +26,14 @@ const buttonLabel = [
 export function ListCoffe() {
   const [coffeList, setCoffeList] = useState<CoffeComponentProps[]>([])
 
+  const handleGetCoffeList = async () => {
+    const data = await getCoffeList()
+    
+    setCoffeList(data as CoffeComponentProps[])
+  }
+
   useEffect(() => {
-    const data: CoffeComponentProps[] = []
-
-    // mover essa parte pra uma pasta separada em services
-    // com retorno dos dados
-    api.get<CoffeComponentProps[]>('/coffe').then((response) => {
-      const res = response.data
-
-      res.map((coffe) => {
-        data.push({
-          id: Math.random(),
-          coffeTitle: coffe.coffeTitle,
-          coffeDescription: coffe.coffeDescription,
-          coffeImage: coffe.coffeImage,
-          coffeTag: coffe.coffeTag,
-          coffePrice: coffe.coffePrice
-        })
-      })
-      
-      setCoffeList(data)
-    })
+    handleGetCoffeList()
   }, [])
 
   return (
