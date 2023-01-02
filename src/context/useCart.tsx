@@ -1,18 +1,17 @@
 import { createContext, ReactNode, useContext, useState } from 'react'
+
 import { CoffeComponentProps } from '../types/coffe'
 
 interface CartContextData {
   cartItemsAmount: number
   coffesToBuy: string[]
-  increaseCartItens: () => void
-  decreaseCartItens: () => void
   addCoffeToCart: (item: string) => void
   removeCoffeFromCart: (item: string) => void
   addCoffe: (item: AddCoffeProps) => void
 }
 
 type AddCoffeProps = {
-  coffeId: number
+  coffeTitle: string
   coffeAmount: number
 }
 
@@ -24,25 +23,7 @@ export const CartContext = createContext({} as CartContextData)
 
 export function CartProvider({ children }: CartProviderData) {
   const [cartItemsAmount, setCartItensAmount] = useState<number>(0)
-  // const [coffesToBuy, setCoffeToBuy] = useState<CoffeComponentProps[]>([])
   const [coffesToBuy, setCoffeToBuy] = useState<string[]>([])
-  const [cartCoffe, setCartCoffe] = useState<CoffeComponentProps[]>([])
-
-  const increaseCartItens = () => {
-    setCartItensAmount((state) => {
-      return state + 1
-    })
-  }
-
-  const decreaseCartItens = () => {
-    if (cartItemsAmount > 0) {
-      setCartItensAmount((state) => {
-        return state - 1
-      })
-    } else {
-      setCartItensAmount(0)
-    }
-  }
 
   const addCoffeToCart = (item: string) => {
     setCoffeToBuy([...coffesToBuy, item])
@@ -54,20 +35,36 @@ export function CartProvider({ children }: CartProviderData) {
     setCoffeToBuy(coffesToBuy)
   }
 
-  const addCoffe = ({
-    coffeId,
-    coffeAmount
-  }: AddCoffeProps) => {
-    // copia de tds os itens no carrinho, que ainda n existe
-    const updatedCart = [...cartCoffe]
-    console.log(coffeId, coffeAmount)
-    const productExists = updatedCart.find(coffe => coffe.id === coffeId)
+  const getCoffesAmount = (id: string, amount: number) => {
+    //  retorna um array com o id repetido pelo amount
+    const idAmount = []
 
-    // currentAmount == coffeAmount
+    for (let i = 0; i < amount; i++) {
+      idAmount.push(id)
+    }
 
-    // se o cafe ja existe no carrinho eu atualizo a qntdd
-    if (productExists) {
-      // add
+    return idAmount
+  }
+
+  const addCoffe = ({ coffeTitle, coffeAmount }: AddCoffeProps) => {
+    const coffesAmount = getCoffesAmount(coffeTitle, coffeAmount)
+
+    if (cartItemsAmount > 1) {
+      setCartItensAmount((state) => {
+        return state + coffesAmount?.length
+      })
+    } else {
+      setCartItensAmount(coffesAmount?.length)
+    }
+
+    if (coffesToBuy?.length) {
+      coffesAmount.map((coffe) => {
+        setCoffeToBuy((state) => {
+          return [...state, coffe]
+        })
+      })
+    } else {
+      setCoffeToBuy(coffesAmount)
     }
   }
 
@@ -76,12 +73,11 @@ export function CartProvider({ children }: CartProviderData) {
       value={{
         cartItemsAmount,
         coffesToBuy,
-        increaseCartItens,
-        decreaseCartItens,
         addCoffeToCart,
         removeCoffeFromCart,
         addCoffe
-      }}>
+      }}
+    >
       {children}
     </CartContext.Provider>
   )

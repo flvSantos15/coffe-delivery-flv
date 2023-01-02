@@ -1,8 +1,6 @@
 import { BrowserRouter } from 'react-router-dom'
 import { CartProvider } from './context/useCart'
 
-
-
 import { Router } from './Router'
 
 import './styles/main.css'
