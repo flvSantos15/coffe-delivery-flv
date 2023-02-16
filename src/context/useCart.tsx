@@ -1,18 +1,28 @@
-import { createContext, ReactNode, useContext, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState
+} from 'react'
 
 import { CoffeComponentProps } from '../types/coffe'
 
+export interface AddCoffeProps extends CoffeComponentProps {
+  coffeAmount: number
+}
 interface CartContextData {
   cartItemsAmount: number
   coffesToBuy: string[]
-  addCoffeToCart: (item: string) => void
-  removeCoffeFromCart: (item: string) => void
+  addCoffeToCart: (product: AddCoffeProps) => void
+  increaseCartMovieAmount: (item: AddCoffeProps) => void
+  decreaseCartMovieAmount: (item: AddCoffeProps) => void
+  removeCoffeFromCart: (product: AddCoffeProps) => void
   addCoffe: (item: AddCoffeProps) => void
-}
-
-type AddCoffeProps = {
-  coffeTitle: string
-  coffeAmount: number
+  cartProducts: AddCoffeProps[]
+  cartItems: AddCoffeProps[]
+  currentProduct: string
+  setCartProducts: (product: AddCoffeProps[]) => void
 }
 
 interface CartProviderData {
@@ -24,49 +34,99 @@ export const CartContext = createContext({} as CartContextData)
 export function CartProvider({ children }: CartProviderData) {
   const [cartItemsAmount, setCartItensAmount] = useState<number>(0)
   const [coffesToBuy, setCoffeToBuy] = useState<string[]>([])
+  const [cartProducts, setCartProducts] = useState<AddCoffeProps[]>([])
+  const [currentProduct, setCurrentProduct] = useState('')
+  const [cartItems, setCartItems] = useState<AddCoffeProps[]>([])
 
-  const addCoffeToCart = (item: string) => {
-    setCoffeToBuy([...coffesToBuy, item])
-  }
+  const addCoffeToCart = (item: AddCoffeProps) => {
+    setCurrentProduct(item.coffeTitle)
 
-  const removeCoffeFromCart = (item: string) => {
-    const coffes = coffesToBuy.indexOf(item)
-    coffesToBuy.splice(coffes, 1)
-    setCoffeToBuy(coffesToBuy)
-  }
+    const coffeExist = cartProducts.find(
+      (coffe) => coffe.id === item.id
+    ) as AddCoffeProps
 
-  const getCoffesAmount = (id: string, amount: number) => {
-    //  retorna um array com o id repetido pelo amount
-    const idAmount = []
-
-    for (let i = 0; i < amount; i++) {
-      idAmount.push(id)
-    }
-
-    return idAmount
-  }
-
-  const addCoffe = ({ coffeTitle, coffeAmount }: AddCoffeProps) => {
-    const coffesAmount = getCoffesAmount(coffeTitle, coffeAmount)
-
-    if (cartItemsAmount > 1) {
-      setCartItensAmount((state) => {
-        return state + coffesAmount?.length
-      })
+    if (!coffeExist) {
+      setCartProducts((state) => [...state, item])
     } else {
-      setCartItensAmount(coffesAmount?.length)
-    }
+      setCartProducts(cartProducts.filter((coffe) => coffe.id !== item.id))
 
-    if (coffesToBuy?.length) {
-      coffesAmount.map((coffe) => {
-        setCoffeToBuy((state) => {
-          return [...state, coffe]
-        })
-      })
-    } else {
-      setCoffeToBuy(coffesAmount)
+      setCartProducts((state) => [
+        ...state,
+        { ...coffeExist, coffeAmount: coffeExist.coffeAmount + 1 }
+      ])
     }
   }
+
+  const increaseCartMovieAmount = (coffe: AddCoffeProps) => {
+    const coffeExist = cartProducts.find(
+      (item) => item.id === coffe.id
+    ) as AddCoffeProps
+
+    setCartProducts(cartProducts.filter((item) => item.id !== coffe.id).sort())
+
+    setCartProducts((state) => [
+      ...state,
+      { ...coffeExist, coffeAmount: coffeExist.coffeAmount + 1 }
+    ])
+  }
+
+  const decreaseCartMovieAmount = (coffe: AddCoffeProps) => {
+    const coffeExist = cartProducts.find(
+      (item) => item.id === coffe.id
+    ) as AddCoffeProps
+
+    setCartProducts(cartProducts.filter((item) => item.id !== coffe.id).sort())
+
+    if (coffeExist.coffeAmount > 1) {
+      setCartProducts((state) => [
+        ...state,
+        { ...coffeExist, coffeAmount: coffeExist.coffeAmount - 1 }
+      ])
+    }
+  }
+
+  const removeCoffeFromCart = (item: AddCoffeProps) => {
+    const cartProductsFiltered = cartProducts.filter(
+      (product) => product.id !== item.id
+    )
+    setCartProducts(cartProductsFiltered)
+  }
+
+  const addCoffe = (coffe: AddCoffeProps) => {
+    // const coffesAmount = getCoffesAmount(coffeTitle, coffeAmount)
+    // if (cartItemsAmount > 1) {
+    //   setCartItensAmount((state) => {
+    //     return state + coffesAmount?.length
+    //   })
+    // } else {
+    //   setCartItensAmount(coffesAmount?.length)
+    // }
+    // if (coffesToBuy?.length) {
+    //   coffesAmount.map((coffe) => {
+    //     setCoffeToBuy((state) => {
+    //       return [...state, coffe]
+    //     })
+    //   })
+    // } else {
+    //   setCoffeToBuy(coffesAmount)
+    // }
+  }
+
+  useEffect(() => {
+    if (cartProducts.length > 0) {
+      setCartItems([])
+      for (let i = 0; i < cartProducts.length; i++) {
+        for (let k = 1; k <= cartProducts[i].coffeAmount; k++) {
+          setCartItems((state) => [...state, cartProducts[i]])
+        }
+      }
+    }
+
+    if (cartProducts.length === 0) {
+      setCartItems([])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartProducts, currentProduct])
 
   return (
     <CartContext.Provider
@@ -75,7 +135,13 @@ export function CartProvider({ children }: CartProviderData) {
         coffesToBuy,
         addCoffeToCart,
         removeCoffeFromCart,
-        addCoffe
+        addCoffe,
+        cartItems,
+        cartProducts,
+        currentProduct,
+        setCartProducts,
+        decreaseCartMovieAmount,
+        increaseCartMovieAmount
       }}
     >
       {children}

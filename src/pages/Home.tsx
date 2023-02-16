@@ -1,9 +1,9 @@
-import { Intro } from "../components/Intro";
-import { ListCoffe } from "../components/ListCoffe";
+import { Intro } from '../components/Intro'
+import { ListCoffe } from '../components/ListCoffe'
 
 export function Home() {
   return (
-    <div className="flex flex-col w-[100%]">
+    <div className="flex flex-col w-[100%] absolute">
       <Intro />
       <ListCoffe />
     </div>

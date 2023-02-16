@@ -5,7 +5,7 @@ import { useCart } from '../../context/useCart'
 export function Header() {
   const { cartItemsAmount } = useCart()
   return (
-    <div className="flex items-center justify-center bg-background fixed w-full">
+    <div className="flex items-center justify-center bg-background fixed w-full z-[999]">
       <div className="flex items-center justify-between bg-background w-[100%] max-w-[90rem] h-[6.5rem] py-[2rem] px-[4rem] md:px-[5rem] lg:px-[6rem] gap-6 md:gap-8 lg:gap-12">
         <img src={'./assets/logo.svg'} alt="" className="" />
 

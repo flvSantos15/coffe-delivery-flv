@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { SubmitHandler, useForm } from 'react-hook-form'
@@ -11,12 +12,13 @@ import cashMoneyIcon from '../../public/assets/money-bill-Icon-2.svg'
 import moneyIcon from '../../public/assets/Money-Icon.svg'
 import trashBin from '../../public/assets/TrashBin-Icon.svg'
 
-import { useCart } from '../context/useCart'
+import { useCart, AddCoffeProps } from '../context/useCart'
 
 import coffes from '../../coffeList.json'
 import { CoffeComponentProps } from '../types/coffe'
 import { getListCoffesToBuy } from '../utils/getListCoffestoBuy'
 import { api } from '../services/api'
+import { ConvertNumber } from '../utils/ConvertNumber'
 
 const coffeDeliveryFormScheme = zod.object({
   cep: zod.string(),
@@ -31,101 +33,108 @@ const coffeDeliveryFormScheme = zod.object({
 
 type CoffeDeliveryForm = zod.infer<typeof coffeDeliveryFormScheme>
 
+const deliveryPrice = '3,50'
+
 export function CheckoutPage() {
-  const { coffesToBuy } = useCart()
+  const navigate = useNavigate()
+  const {
+    cartProducts,
+    setCartProducts,
+    increaseCartMovieAmount,
+    decreaseCartMovieAmount,
+    removeCoffeFromCart
+  } = useCart()
 
-  const [coffeList, setCoffeList] = useState<CoffeComponentProps[]>([])
-  const [coffeListToBuy, setCoffeListToBuy] = useState<CoffeComponentProps[]>([])
   const [paymentMethod, setPaymentMethod] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const { handleSubmit, formState, reset, register } = useForm<CoffeDeliveryForm>({
-    resolver: zodResolver(coffeDeliveryFormScheme)
-  })
+  const { handleSubmit, formState, reset, register } =
+    useForm<CoffeDeliveryForm>({
+      resolver: zodResolver(coffeDeliveryFormScheme)
+    })
 
   const { errors } = formState
 
-  const handleOnSubmit: SubmitHandler<CoffeDeliveryForm> = async (data: CoffeDeliveryForm) => {
-    const response: CoffeDeliveryForm = await {
-      bairro: data.bairro,
-      cep: data.cep,
-      rua: data.rua,
-      number: data.number,
-      cidade: data.cidade,
-      complemento: data.complemento,
-      uf: data.uf,
-      pagamento: paymentMethod,
-    }
-    setPaymentMethod('')
-    reset()
-  }
-
-  const coffeListToBuyArray: CoffeComponentProps[] = []
-
-  function handleRemoveItemFromCart() {
-    console.log("removendo")
-  }
-
-  function handleIncreaseCartItens() {
-    console.log("increasing")
-  }
-
-  function handleDecreaseCartItens() {
-    console.log("decreasing")
-  }
-
-  useEffect(() => {
-    const coffesName = coffeList.map(item => {
-      return item.coffeTitle
-    })
-
-    const coffes = getListCoffesToBuy(coffesToBuy, coffesName)
-
-    coffeList.map(coffe => {
-      if (coffes.includes(coffe.coffeTitle)) {
-        coffeListToBuyArray.push(coffe)
+  const handleOnSubmit: SubmitHandler<CoffeDeliveryForm> = async (
+    data: CoffeDeliveryForm
+  ) => {
+    setLoading(true)
+    try {
+      const responseData: CoffeDeliveryForm = await {
+        bairro: data.bairro,
+        cep: data.cep,
+        rua: data.rua,
+        number: data.number,
+        cidade: data.cidade,
+        complemento: data.complemento,
+        uf: data.uf,
+        pagamento: paymentMethod
       }
-    })
 
-    setCoffeListToBuy(coffeListToBuyArray)
+      const response = {
+        ...responseData,
+        coffe: cartProducts
+      }
+      navigate('/success')
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
+      setPaymentMethod('')
+      setCartProducts([])
+      reset()
+    }
+  }
 
-  }, [coffeList])
+  const handleIncreaseCartItens = (coffe: any) => {
+    increaseCartMovieAmount(coffe)
+  }
 
-  // essa fn já existe em outro lugar, arrumar dps
-  useEffect(() => {
-    const data: CoffeComponentProps[] = []
+  const handleDecreaseCartItens = (coffe: any) => {
+    decreaseCartMovieAmount(coffe)
+  }
 
-    // mover essa parte pra uma pasta separada em services
-    // com retorno dos dados
-    api.get<CoffeComponentProps[]>('/coffe').then((response) => {
-      const res = response.data
+  const prices: number[] = []
+  const subTotalPrice = (amount: number, price: string) => {
+    const priceConverted = Number(price.replace(',', '.'))
 
-      res.map((coffe) => {
-        data.push({
-          id: Math.random(),
-          coffeTitle: coffe.coffeTitle,
-          coffeDescription: coffe.coffeDescription,
-          coffeImage: coffe.coffeImage,
-          coffeTag: coffe.coffeTag,
-          coffePrice: coffe.coffePrice
-        })
-      })
-      
-      setCoffeList(data)
-    })
-  }, [])
+    const total = amount * priceConverted
+    prices.push(total)
 
+    return ConvertNumber(total)
+  }
 
-  const totalItensPrice = useCallback(() => {
+  const totalItemsPrice = () => {
+    const totalPrices = prices.reduce((acc, curr) => {
+      const total = (acc += curr)
 
-  }, [])
+      return total
+    }, 0)
 
-  const normalButtonColor = "flex items-center p-[1rem] gap-[0.75rem] w-[11.125rem] h-[3.188rem] rounded-md bg-base-button"
-  const activeButtonColor = "flex items-center p-[1rem] gap-[0.75rem] w-[11.125rem] h-[3.188rem] rounded-md bg-purple-light border border-solid border-[#8047F8]"
+    return ConvertNumber(totalPrices)
+  }
+
+  const totalPrice = () => {
+    const totalPrices = prices.reduce((acc, curr) => {
+      const total = (acc += curr)
+
+      return total
+    }, 0)
+
+    return ConvertNumber(totalPrices + Number(deliveryPrice.replace(',', '.')))
+  }
+
+  const normalButtonColor =
+    'flex items-center p-[1rem] gap-[0.75rem] w-[11.125rem] h-[3.188rem] rounded-md bg-base-button'
+  const activeButtonColor =
+    'flex items-center p-[1rem] gap-[0.75rem] w-[11.125rem] h-[3.188rem] rounded-md bg-purple-light border border-solid border-[#8047F8]'
 
   return (
-    <div className="flex items-center justify-center">
-      <form onSubmit={handleSubmit(handleOnSubmit)} className="flex items-start justify-between mt-[1rem] w-[100%] max-w-[90rem] px-[10rem] lg:px-[6rem]">
-        {/* esquerdo */}
+    <div className="flex items-center justify-center xl:py-[6.5rem]">
+      <form
+        onSubmit={handleSubmit(handleOnSubmit)}
+        className="flex items-start justify-between mt-[1rem] w-[100%] max-w-[90rem] px-[10rem] lg:px-[6rem]"
+      >
         <div className="flex flex-col items-start">
           {/* title */}
           <h2 className="font-['Baloo_2'] font-bold text-[1.125rem] leading-[1.438rem] text-center text-base-subtitle">
@@ -211,77 +220,110 @@ export function CheckoutPage() {
                     Pagamento
                   </p>
                   <p className="font-['Roboto'] font-normal text-sm leading-[1.313rem] text-center text-base-text">
-                    O pagamento é feito na entrega. Escolha a forma que deseja pagar
+                    O pagamento é feito na entrega. Escolha a forma que deseja
+                    pagar
                   </p>
                 </div>
               </div>
               {/* buttons form */}
               <div className="flex justify-center items-center p-0 gap-[0.75rem]">
-                <button 
-                  onClick={() => setPaymentMethod('credcard')} 
+                <button
+                  onClick={() => setPaymentMethod('credcard')}
                   type="button"
                   {...register('pagamento')}
-                  className={paymentMethod === 'credcard' ? activeButtonColor : normalButtonColor}
+                  className={
+                    paymentMethod === 'credcard'
+                      ? activeButtonColor
+                      : normalButtonColor
+                  }
                 >
                   <img src={credCardIcon} />
-                  <p className="text-center font-['Roboto'] font-normal text-xs leading-[1.188rem] text-base-text">CARTÂO DE CRÉDITO</p>
+                  <p className="text-center font-['Roboto'] font-normal text-xs leading-[1.188rem] text-base-text">
+                    CARTÂO DE CRÉDITO
+                  </p>
                 </button>
-                <button 
-                  onClick={() => setPaymentMethod('debitcard')} 
+                <button
+                  onClick={() => setPaymentMethod('debitcard')}
                   type="button"
                   {...register('pagamento')}
-                  className={paymentMethod === 'debitcard' ? activeButtonColor : normalButtonColor}
+                  className={
+                    paymentMethod === 'debitcard'
+                      ? activeButtonColor
+                      : normalButtonColor
+                  }
                 >
                   <img src={debitIcon} />
-                  <p className="text-center font-['Roboto'] font-normal text-xs leading-[1.188rem] text-base-text">CARTÂO DE DÉBITO</p>
+                  <p className="text-center font-['Roboto'] font-normal text-xs leading-[1.188rem] text-base-text">
+                    CARTÂO DE DÉBITO
+                  </p>
                 </button>
-                <button 
-                  onClick={() => setPaymentMethod('cash')} 
+                <button
+                  onClick={() => setPaymentMethod('cash')}
                   type="button"
                   {...register('pagamento')}
-                  className={paymentMethod === 'cash' ? activeButtonColor : normalButtonColor}
+                  className={
+                    paymentMethod === 'cash'
+                      ? activeButtonColor
+                      : normalButtonColor
+                  }
                 >
                   <img src={cashMoneyIcon} />
-                  <p className="text-center font-['Roboto'] font-normal text-xs leading-[1.188rem] text-base-text">DINHEIRO</p>
+                  <p className="text-center font-['Roboto'] font-normal text-xs leading-[1.188rem] text-base-text">
+                    DINHEIRO
+                  </p>
                 </button>
               </div>
             </div>
           </div>
         </div>
-        {/* direito */}
+
         <div className="flex flex-col items-start justify-start">
-          {/* title */}
           <h2 className="font-['Baloo_2'] font-bold text-[1.125rem] leading-[1.438rem] text-center text-base-subtitle">
             Cafés selecionados
           </h2>
-          {/* content */}
           <div className="flex flex-col items-start p-[2.5rem] gap-[1.5rem] w-[28rem] h-[31.125rem] mt-[0.5rem] bg-base-card rounded-tl-[0.375rem] rounded-br-[0.375rem] rounded-tr-[2.75rem] rounded-bl-[2.75rem]">
             <div className="flex flex-col w-[100%] gap-[1rem] overflow-auto">
               {/* itens p compra */}
-              {coffeListToBuy.map((coffe) => {
+              {cartProducts.map((coffe, index) => {
                 return (
                   <>
-                    <div key={coffe.coffeTitle} className="flex justify-between items-start py-[0.5rem] px-[0.25rem] gap-[3.688rem]">
+                    <div
+                      key={`${coffe.coffeTitle}.${index}`}
+                      className="flex justify-between items-start py-[0.5rem] px-[0.25rem] gap-[3.688rem]"
+                    >
                       <div className="flex items-center p-0 gap-[1.25rem] w-[15.938rem] h-[4rem]">
-                        <img src={coffe.coffeImage} alt="" className="w-[4rem] h-[4rem]" />
+                        <img
+                          src={coffe.coffeImage}
+                          alt=""
+                          className="w-[4rem] h-[4rem]"
+                        />
                         <div className="flex flex-col items-start p-0 gap-[0.5rem] w-[10.75rem] h-[100%]">
                           <p className="font-['Roboto'] font-normal text-base leading-[1.313rem] text-base-subtitle">
                             {coffe.coffeTitle}
                           </p>
-                          <div className="flex justify-between w-[100%]">
+                          <div className="flex justify-between w-[100%] gap-2">
                             <div className="flex justify-center items-center p-[0.5rem] gap-[0.25rem] bg-base-button rounded-[0.375rem] w-[4.5rem] h-[2rem]">
-                              <button className="flex justify-center items-center w-[0.875rem] h-[0.875rem] text-purple">
+                              <button
+                                onClick={() => handleDecreaseCartItens(coffe)}
+                                className="flex justify-center items-center w-[0.875rem] h-[0.875rem] text-purple"
+                              >
                                 -
                               </button>
                               <p className="font-['Roboto'] font-normal text-base leading-[1.313rem] text-center text-base-title">
-                                1
+                                {coffe.coffeAmount}
                               </p>
-                              <button className="flex justify-center items-center w-[0.875rem] h-[0.875rem] text-purple">
+                              <button
+                                onClick={() => handleIncreaseCartItens(coffe)}
+                                className="flex justify-center items-center w-[0.875rem] h-[0.875rem] text-purple"
+                              >
                                 +
                               </button>
                             </div>
 
-                            <button className="flex justify-center items-center py-0 px-[0.5rem] gap-[0.25rem] w-[5.688rem] h-[2rem] bg-base-button rounded-md">
+                            <button
+                              onClick={() => removeCoffeFromCart(coffe)}
+                              className="flex justify-center items-center py-0 px-[0.5rem] gap-[0.25rem] w-[5.688rem] h-[2rem] bg-base-button rounded-md"
+                            >
                               <img src={trashBin} alt="" />
                               <p className="font-['Roboto'] font-normal text-xs leading-[1.188rem] text-base-text">
                                 REMOVER
@@ -291,7 +333,7 @@ export function CheckoutPage() {
                         </div>
                       </div>
                       <p className="font-['Roboto'] font-bold text-base leading-[1.313rem] text-right text-base-text w-[4rem]">
-                        {coffe.coffePrice}
+                        {subTotalPrice(coffe.coffeAmount, coffe.coffePrice)}
                       </p>
                     </div>
                     {/* divider */}
@@ -301,7 +343,6 @@ export function CheckoutPage() {
               })}
             </div>
 
-            {/* total de valores */}
             <div className="flex flex-col justify-between w-[23rem] gap-[1rem]">
               {/* items */}
               <div className="flex flex-col justify-center items-start p-0 gap-[0.75rem] h-[5.75rem]">
@@ -310,7 +351,7 @@ export function CheckoutPage() {
                     Total de Itens
                   </p>
                   <p className="font-['Roboto'] font-normal text-base leading-[1.313rem] text-right text-base-text">
-                    R$ 29,70
+                    {totalItemsPrice()}
                   </p>
                 </div>
                 <div className="flex justify-between items-center w-[100%] p-0 gap-[0.5rem] h-[1.313rem]">
@@ -318,7 +359,7 @@ export function CheckoutPage() {
                     Entrega
                   </p>
                   <p className="font-['Roboto'] font-normal text-base leading-[1.313rem] text-right text-base-text">
-                    R$ 3,50
+                    R$ {deliveryPrice}
                   </p>
                 </div>
                 <div className="flex justify-between items-center w-[100%] p-0 gap-[0.5rem] h-[1.313rem]">
@@ -326,13 +367,20 @@ export function CheckoutPage() {
                     Total
                   </p>
                   <p className="font-['Roboto'] font-bold text-[1.25rem] leading-[1.625rem] text-right text-base-subtitle">
-                    R$ 33,20
+                    {totalPrice()}
                   </p>
                 </div>
               </div>
               {/* button */}
-              <button type="submit" onClick={handleSubmit(handleOnSubmit)} className="flex justify-center items-center py-[0.75rem] px-[0.5rem] gap-[0.25rem] w-[100%] h-[2.875rem] bg-yellow rounded-md">
-                <p className="font-['Roboto'] font-bold text-sm leading-[1.375rem] text-white">CONFIRMAR PEDIDO</p>
+              <button
+                type="submit"
+                disabled={loading}
+                onClick={handleSubmit(handleOnSubmit)}
+                className="flex justify-center items-center py-[0.75rem] px-[0.5rem] gap-[0.25rem] w-[100%] h-[2.875rem] bg-yellow rounded-md"
+              >
+                <p className="font-['Roboto'] font-bold text-sm leading-[1.375rem] text-white">
+                  {loading ? 'Carregando...' : 'CONFIRMAR PEDIDO'}
+                </p>
               </button>
             </div>
           </div>
