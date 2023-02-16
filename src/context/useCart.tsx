@@ -12,8 +12,6 @@ export interface AddCoffeProps extends CoffeComponentProps {
   coffeAmount: number
 }
 interface CartContextData {
-  cartItemsAmount: number
-  coffesToBuy: string[]
   addCoffeToCart: (product: AddCoffeProps) => void
   increaseCartMovieAmount: (item: AddCoffeProps) => void
   decreaseCartMovieAmount: (item: AddCoffeProps) => void
@@ -32,8 +30,6 @@ interface CartProviderData {
 export const CartContext = createContext({} as CartContextData)
 
 export function CartProvider({ children }: CartProviderData) {
-  const [cartItemsAmount, setCartItensAmount] = useState<number>(0)
-  const [coffesToBuy, setCoffeToBuy] = useState<string[]>([])
   const [cartProducts, setCartProducts] = useState<AddCoffeProps[]>([])
   const [currentProduct, setCurrentProduct] = useState('')
   const [cartItems, setCartItems] = useState<AddCoffeProps[]>([])
@@ -131,8 +127,6 @@ export function CartProvider({ children }: CartProviderData) {
   return (
     <CartContext.Provider
       value={{
-        cartItemsAmount,
-        coffesToBuy,
         addCoffeToCart,
         removeCoffeFromCart,
         addCoffe,

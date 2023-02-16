@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import * as zod from 'zod'
+import clsx from 'clsx'
 
 import credCardIcon from '../../public/assets/credcard-Icon.svg'
 import debitIcon from '../../public/assets/debit-Icon-1.svg'
@@ -124,11 +125,6 @@ export function CheckoutPage() {
     return ConvertNumber(totalPrices + Number(deliveryPrice.replace(',', '.')))
   }
 
-  const normalButtonColor =
-    'flex items-center p-[1rem] gap-[0.75rem] w-[11.125rem] h-[3.188rem] rounded-md bg-base-button'
-  const activeButtonColor =
-    'flex items-center p-[1rem] gap-[0.75rem] w-[11.125rem] h-[3.188rem] rounded-md bg-purple-light border border-solid border-[#8047F8]'
-
   return (
     <div className="flex items-center justify-center xl:py-[6.5rem]">
       <form
@@ -231,11 +227,14 @@ export function CheckoutPage() {
                   onClick={() => setPaymentMethod('credcard')}
                   type="button"
                   {...register('pagamento')}
-                  className={
-                    paymentMethod === 'credcard'
-                      ? activeButtonColor
-                      : normalButtonColor
-                  }
+                  className={clsx(
+                    'flex items-center p-[1rem] gap-[0.75rem] w-[11.125rem] h-[3.188rem] rounded-md',
+                    {
+                      'bg-base-button': paymentMethod === 'credcard',
+                      'bg-purple-light border border-solid border-[#8047F8]':
+                        paymentMethod !== 'credcard'
+                    }
+                  )}
                 >
                   <img src={credCardIcon} />
                   <p className="text-center font-['Roboto'] font-normal text-xs leading-[1.188rem] text-base-text">
@@ -246,11 +245,14 @@ export function CheckoutPage() {
                   onClick={() => setPaymentMethod('debitcard')}
                   type="button"
                   {...register('pagamento')}
-                  className={
-                    paymentMethod === 'debitcard'
-                      ? activeButtonColor
-                      : normalButtonColor
-                  }
+                  className={clsx(
+                    'flex items-center p-[1rem] gap-[0.75rem] w-[11.125rem] h-[3.188rem] rounded-md',
+                    {
+                      'bg-base-button': paymentMethod === 'debitcard',
+                      'bg-purple-light border border-solid border-[#8047F8]':
+                        paymentMethod !== 'debitcard'
+                    }
+                  )}
                 >
                   <img src={debitIcon} />
                   <p className="text-center font-['Roboto'] font-normal text-xs leading-[1.188rem] text-base-text">
@@ -261,11 +263,14 @@ export function CheckoutPage() {
                   onClick={() => setPaymentMethod('cash')}
                   type="button"
                   {...register('pagamento')}
-                  className={
-                    paymentMethod === 'cash'
-                      ? activeButtonColor
-                      : normalButtonColor
-                  }
+                  className={clsx(
+                    'flex items-center p-[1rem] gap-[0.75rem] w-[11.125rem] h-[3.188rem] rounded-md',
+                    {
+                      'bg-base-button': paymentMethod === 'cash',
+                      'bg-purple-light border border-solid border-[#8047F8]':
+                        paymentMethod !== 'cash'
+                    }
+                  )}
                 >
                   <img src={cashMoneyIcon} />
                   <p className="text-center font-['Roboto'] font-normal text-xs leading-[1.188rem] text-base-text">
