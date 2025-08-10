@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import iconCartButton from '../../../public/assets/icon-cart-button.svg'
+import iconCartButton from '../../assets/icon-cart-button.svg'
 import { useCart } from '../../context/useCart'
 
 import { CoffeComponentProps } from '../../types/coffe'
 
 export function CoffeComponent(coffe: CoffeComponentProps) {
-  const { addCoffeToCart, removeCoffeFromCart, addCoffe, coffesToBuy } =
+  const { addCoffeToCart, removeCoffeFromCart, addCoffe } =
     useCart()
 
   const [cartItens, setCartItens] = useState(0)
@@ -25,21 +25,21 @@ export function CoffeComponent(coffe: CoffeComponentProps) {
     await addCoffeToCart({ ...coffe, coffeAmount: cartItens })
   }
 
-  useEffect(() => {
-    if (coffesToBuy?.length) {
-      coffesToBuy.map((item) => {
-        const coffesName = []
+  // useEffect(() => {
+  //   if (coffesToBuy?.length) {
+  //     // coffesToBuy.map((item) => {
+  //     //   const coffesName = []
 
-        if (item === coffe.coffeTitle) {
-          coffesName.push(item)
-        }
+  //     //   if (item === coffe.coffeTitle) {
+  //     //     coffesName.push(item)
+  //     //   }
 
-        // setCartItens((state) => {
-        //   return state + coffesName?.length
-        // })
-      })
-    }
-  }, [coffesToBuy, coffe])
+  //     //   // setCartItens((state) => {
+  //     //   //   return state + coffesName?.length
+  //     //   // })
+  //     // })
+  //   }
+  // }, [coffesToBuy, coffe])
 
   const isCartItensEmpty = cartItens === 0
 

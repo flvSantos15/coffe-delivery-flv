@@ -1,8 +1,7 @@
-import coffeHome from '/assets/coffe-home.png'
-import Icon_2 from '/assets/Icon-1.svg'
-import Icon_3 from '/assets/Icon-2.svg'
-import Icon_4 from '/assets/Icon-3.svg'
-import Icon_1 from '/assets/Icon.svg'
+import coffeHome from '../../assets/coffe-home.png'
+import { default as Icon_1, default as Icon_2 } from '../../assets/Icon-1.svg'
+import Icon_3 from '../../assets/Icon-2.svg'
+import Icon_4 from '../../assets/Icon-3.svg'
 
 const itensLeft = [
   {

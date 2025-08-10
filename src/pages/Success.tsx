@@ -1,7 +1,7 @@
-import { HiLocationMarker, HiClock } from 'react-icons/hi'
 import { BiDollar } from 'react-icons/bi'
+import { HiClock, HiLocationMarker } from 'react-icons/hi'
 
-import deliveryManSVG from '../../public/assets/deliver-man.svg'
+import deliveryManSVG from '../assets/deliver-man.svg'
 
 export function SuccessPage() {
   return (

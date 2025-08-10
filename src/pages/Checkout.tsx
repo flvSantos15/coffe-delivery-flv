@@ -1,24 +1,20 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import clsx from 'clsx'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import * as zod from 'zod'
-import clsx from 'clsx'
 
-import credCardIcon from '../../public/assets/credcard-Icon.svg'
-import debitIcon from '../../public/assets/debit-Icon-1.svg'
-import locationIcon from '../../public/assets/location-Icon-outline.svg'
-import cashMoneyIcon from '../../public/assets/money-bill-Icon-2.svg'
-import moneyIcon from '../../public/assets/Money-Icon.svg'
-import trashBin from '../../public/assets/TrashBin-Icon.svg'
+import credCardIcon from '../assets/credcard-Icon.svg'
+import debitIcon from '../assets/debit-Icon-1.svg'
+import locationIcon from '../assets/location-Icon-outline.svg'
+import cashMoneyIcon from '../assets/money-bill-Icon-2.svg'
+import moneyIcon from '../assets/Money-Icon.svg'
+import trashBin from '../assets/TrashBin-Icon.svg'
 
-import { useCart, AddCoffeProps } from '../context/useCart'
+import { useCart } from '../context/useCart'
 
-import coffes from '../../coffeList.json'
-import { CoffeComponentProps } from '../types/coffe'
-import { getListCoffesToBuy } from '../utils/getListCoffestoBuy'
-import { api } from '../services/api'
 import { ConvertNumber } from '../utils/ConvertNumber'
 
 const coffeDeliveryFormScheme = zod.object({
